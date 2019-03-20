@@ -18,10 +18,10 @@ def is_valid_pitch_set(pitch_set):
     return len([p for p in pitch_set if p >= 0 and p < 12]) == len(pitch_set)
 
 def to_valid_pitch_set(pitch_set):
-    return tuple(p % 12 for p in pitch_set)
+    return [p % 12 for p in pitch_set]
 
 def transpose(pitch_set, steps):
-    return tuple((p + steps) % 12 for p in pitch_set)
+    return [(p + steps) % 12 for p in pitch_set]
 
 def rotate(pitch_set, steps):
     return pitch_set[steps:] + pitch_set[:steps]
@@ -33,6 +33,9 @@ def normal(pitch_set):
     
     # make sure it valid
     valid_pitch_set = to_valid_pitch_set(pitch_set)
+    
+    # get rid of duplicates
+    valid_pitch_set = list(dict.fromkeys(valid_pitch_set))
 
     # find largest interval
     intervals = itertools.combinations(valid_pitch_set, 2)
