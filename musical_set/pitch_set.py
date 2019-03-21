@@ -1,3 +1,4 @@
+import copy 
 import itertools 
 
 notes = ('C', 'C#', 'D', 'D#', 'E', 'F', 'G', 'G#', 'A', 'A#', 'B')
@@ -13,45 +14,64 @@ def interval_distance(p1, p2):
 
     return distance 
 
-def is_valid_pitch_set(pitch_set):
-    # make sure all values are between 0 (inclusive) and 12 (exclusive)
-    return len([p for p in pitch_set if p >= 0 and p < 12]) == len(pitch_set)
+def to_valid(pitch_classes):
+    return [p % 12 for p in pitch_classes]
 
-def to_valid_pitch_set(pitch_set):
-    return [p % 12 for p in pitch_set]
 
-def transpose(pitch_set, steps):
-    return [(p + steps) % 12 for p in pitch_set]
+class PitchClassSet:
 
-def rotate(pitch_set, steps):
-    return pitch_set[steps:] + pitch_set[:steps]
+    def __init__(self, pitch_classes):
+        
+        # make pitch_classes valid
+        self.pitch_classes = to_valid(pitch_classes)
 
-def normal(pitch_set):
-
-    if pitch_set == None or len(pitch_set) == 0:
-        return pitch_set
-    
-    # make sure it valid
-    valid_pitch_set = to_valid_pitch_set(pitch_set)
-    
-    # get rid of duplicates
-    valid_pitch_set = list(dict.fromkeys(valid_pitch_set))
-
-    # find largest interval
-    intervals = itertools.combinations(valid_pitch_set, 2)
-    interval_distances = [(i, interval_distance(i[0], i[1])) for i in intervals]
-    interval_distances = sorted(interval_distances, key=lambda x: x[1], reverse=True)
-    largest_interval = interval_distances[0]
-
-    # rotate until the intervals are on each side
-    normal_form = sorted(valid_pitch_set)
-    while normal_form[0] == largest_interval[0] and normal_form[len(normal_form) - 1] == largest_interval[1]:
-        normal_form = rotate(normal_form, 1)
-
-    return normal_form 
-
+        
 
     
+    # public methods 
+    def transpose(self, steps):
+        return PitchClassSet([(p + steps) % 12 for p in self.pitch_classes])
+    
+    def invert(self):
+        pass 
+    
+    def rotate(self, steps):
+        return PitchClassSet(self.pitch_classes[steps:] + self.pitch_classes[:steps])
+    
+    def normal_order(self):
+        
+        if self.pitch_classes == None or len(self.pitch_classes) == 0:
+            return copy.deepcopy(self) 
+        
+        # get rid of duplicates
+        pitch_classes = list(dict.fromkeys(self.pitch_classes))
 
-def prime(pitch_set):
-    pass 
+        # find largest interval
+        intervals = itertools.combinations(pitch_classes, 2)
+        interval_distances = [(sorted(i), interval_distance(i[0], i[1])) for i in intervals]
+        interval_distances = sorted(interval_distances, key=lambda x: x[1], reverse=True)
+        largest_interval = interval_distances[0]
+
+        # rotate until the intervals are on each side
+        normal_order = PitchClassSet(sorted(pitch_classes))
+        while normal_order[0] != largest_interval[0][0] or normal_order[len(normal_order) - 1] != largest_interval[0][1]:
+            normal_order = normal_order.rotate(1)
+
+        return normal_order 
+
+        
+    def prime_form(self):
+        pass 
+
+    # magic methods 
+    def __list__(self):
+        return list(self.pitch_classes)
+    
+    def __tuple__(self):
+        return tuple(self.pitch_classes)
+    
+    def __getitem__(self, key):
+        return self.pitch_classes[key]
+    
+    def __len__(self):
+        return len(self.pitch_classes)
