@@ -40,13 +40,17 @@ class PitchClassSet:
     
     def steps(self):
         # TODO work on this
-        pass 
+        total = 0
+        for i in range(1, len(self.pitch_classes):
+            total += interval_distance(self.pitch_classes[i-1], self.pitch_classes[i])
+        return total 
 
     # public methods 
     def transpose(self, steps):
         return PitchClassSet([(p + steps) % 12 for p in self.pitch_classes])
     
     def invert(self):
+        # TODO work on this
         pass 
     
     def rotate(self, steps):
