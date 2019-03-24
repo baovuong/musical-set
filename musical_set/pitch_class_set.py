@@ -17,6 +17,19 @@ def interval_distance(p1, p2):
 def to_valid(pitch_classes):
     return [p % 12 for p in pitch_classes]
 
+def adjacency_list(pitch_classes):
+    output = {}
+    sorted_pitch_classes = sorted(pitch_classes)
+    for i in range(len(sorted_pitch_classes)):
+        output[sorted_pitch_classes[i]] = {}
+        
+        # get neighbors
+        p = sorted_pitch_classes[(i-1) % len(sorted_pitch_classes)]
+        n = sorted_pitch_classes[(i+1) % len(sorted_pitch_classes)]
+        output[sorted_pitch_classes[i]][p] = interval_distance(sorted_pitch_classes[i], p)
+        output[sorted_pitch_classes[i]][n] = interval_distance(sorted_pitch_classes[i], n)
+    
+    return output 
 
 class PitchClassSet:
 
@@ -47,7 +60,17 @@ class PitchClassSet:
         pitch_classes = list(dict.fromkeys(self.pitch_classes))
 
         # find largest interval
-        intervals = itertools.combinations(pitch_classes, 2)
+        #intervals = itertools.combinations(pitch_classes, 2)
+        intervals = set()
+        ai = adjacency_list(self.pitch_classes)
+        for key, value in ai.items():
+            for k, v in value.items():
+                intervals.add(tuple(sorted((key, k))))
+            
+        intervals = list(intervals)
+        print(intervals)
+        
+        
         interval_distances = [(sorted(i), interval_distance(i[0], i[1])) for i in intervals]
         interval_distances = sorted(interval_distances, key=lambda x: x[1], reverse=True)
         largest_interval = interval_distances[0]
@@ -59,10 +82,9 @@ class PitchClassSet:
 
         return normal_order 
 
-        
     def prime_form(self):
         pass 
-
+    
     # magic methods 
     def __list__(self):
         return list(self.pitch_classes)
