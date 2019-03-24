@@ -38,6 +38,10 @@ class PitchClassSet:
         # make pitch_classes valid
         self.pitch_classes = to_valid(pitch_classes)
     
+    def steps(self):
+        # TODO work on this
+        pass 
+
     # public methods 
     def transpose(self, steps):
         return PitchClassSet([(p + steps) % 12 for p in self.pitch_classes])
@@ -76,6 +80,7 @@ class PitchClassSet:
         return normal_order 
 
     def prime_form(self):
+        # TODO work on this 
         pass 
     
     # magic methods 
