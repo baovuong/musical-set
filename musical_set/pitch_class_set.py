@@ -37,9 +37,6 @@ class PitchClassSet:
         
         # make pitch_classes valid
         self.pitch_classes = to_valid(pitch_classes)
-
-        
-
     
     # public methods 
     def transpose(self, steps):
@@ -60,24 +57,20 @@ class PitchClassSet:
         pitch_classes = list(dict.fromkeys(self.pitch_classes))
 
         # find largest interval
-        #intervals = itertools.combinations(pitch_classes, 2)
         intervals = set()
         ai = adjacency_list(self.pitch_classes)
         for key, value in ai.items():
-            for k, v in value.items():
+            for k in value.keys():
                 intervals.add(tuple(sorted((key, k))))
-            
-        intervals = list(intervals)
-        print(intervals)
-        
         
         interval_distances = [(sorted(i), interval_distance(i[0], i[1])) for i in intervals]
         interval_distances = sorted(interval_distances, key=lambda x: x[1], reverse=True)
-        largest_interval = interval_distances[0]
+        largest_interval = set(interval_distances[0][0])
 
         # rotate until the intervals are on each side
         normal_order = PitchClassSet(sorted(pitch_classes))
-        while normal_order[0] != largest_interval[0][0] or normal_order[len(normal_order) - 1] != largest_interval[0][1]:
+
+        while set([normal_order[0], normal_order[-1]]) != largest_interval:
             normal_order = normal_order.rotate(1)
 
         return normal_order 
