@@ -82,3 +82,13 @@ class TestPitchClassSet(object):
     def test_normal_order(self, input_set, expected):
         actual = PitchClassSet(input_set).normal_order()
         assert expected == list(actual)
+    
+
+    @pytest.mark.parametrize('input_set, expected', [
+        ([0, 2, 3, 5, 10], [0, 2, 3, 5, 7]),
+        ([8, 2, 5, 1], [0, 1, 4, 7]),
+        ([5, 9, 0, 4], [0, 1, 5, 8])
+    ])
+    def test_prime_form(self, input_set, expected):
+        actual = PitchClassSet(input_set).prime_form()
+        assert expected == list(actual)

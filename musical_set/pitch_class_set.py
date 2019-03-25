@@ -38,7 +38,19 @@ class PitchClassSet:
         # make pitch_classes valid
         self.pitch_classes = to_valid(pitch_classes)
     
+
+
     # public methods 
+    def steps(self):
+        total = 0
+        for i in range(1, len(self.pitch_classes)):
+            total += interval_distance(0, self.pitch_classes[i])
+        return total 
+
+    def interval_vector(self):
+        # TODO work on this 
+        pass
+
     def transpose(self, steps):
         return PitchClassSet([(p + steps) % 12 for p in self.pitch_classes])
     
@@ -47,9 +59,6 @@ class PitchClassSet:
     
     def rotate(self, steps):
         return PitchClassSet(self.pitch_classes[steps:] + self.pitch_classes[:steps])
-    
-    def total_steps(self):
-        pass 
     
     def normal_order(self):
         
@@ -78,21 +87,22 @@ class PitchClassSet:
 
         return normal_order 
 
-    # TODO implement this    
+    # TODO implement this
     def prime_form(self):
         # normal order
         prime = self.normal_order()
         
         # transpose to zero
-        prime = prime.transpose(interval_distance(0, prime[0]))
+        prime = prime.transpose(0 - prime[0])
 
         # invert
         inversion = prime.invert().normal_order()
 
         # transpose inversion to zero
-        inversion = inversion.transpose(interval_distance(0, inversion[0]))
+        inversion = inversion.transpose(0 - inversion[0])
 
-        return prime 
+        # compare the two
+        return prime if prime.steps() <= inversion.steps() else inversion  
     
     # magic methods 
     def __list__(self):
