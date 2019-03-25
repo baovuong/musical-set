@@ -63,6 +63,14 @@ class TestPitchClassSet(object):
     def test_rotate(self, p, s, expected):
         actual = PitchClassSet(p).rotate(s)
         assert expected == list(actual)
+
+
+    @pytest.mark.parametrize('input_set, expected', [
+        ([0, 2, 7], [4, 2, 9])
+    ])
+    def test_invert(self, input_set, expected):
+        actual = PitchClassSet(input_set).invert()
+        assert expected == list(actual)
     
     @pytest.mark.parametrize('input_set, expected', [
         ([7, 4, 0], [0, 4, 7]),
@@ -71,7 +79,6 @@ class TestPitchClassSet(object):
         ([0, 2, 3, 5, 10], [10, 0, 2, 3, 5]),
         ([8, 9, 3], [3, 8, 9])
     ])
-    #@pytest.mark.skip('still fixing this')
     def test_normal_order(self, input_set, expected):
         actual = PitchClassSet(input_set).normal_order()
         assert expected == list(actual)

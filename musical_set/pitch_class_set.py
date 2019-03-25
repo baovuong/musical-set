@@ -43,10 +43,13 @@ class PitchClassSet:
         return PitchClassSet([(p + steps) % 12 for p in self.pitch_classes])
     
     def invert(self):
-        pass 
+        return PitchClassSet([(4 - p) % 12 for p in self.pitch_classes])
     
     def rotate(self, steps):
         return PitchClassSet(self.pitch_classes[steps:] + self.pitch_classes[:steps])
+    
+    def total_steps(self):
+        pass 
     
     def normal_order(self):
         
@@ -75,8 +78,21 @@ class PitchClassSet:
 
         return normal_order 
 
+    # TODO implement this    
     def prime_form(self):
-        pass 
+        # normal order
+        prime = self.normal_order()
+        
+        # transpose to zero
+        prime = prime.transpose(interval_distance(0, prime[0]))
+
+        # invert
+        inversion = prime.invert().normal_order()
+
+        # transpose inversion to zero
+        inversion = inversion.transpose(interval_distance(0, inversion[0]))
+
+        return prime 
     
     # magic methods 
     def __list__(self):
