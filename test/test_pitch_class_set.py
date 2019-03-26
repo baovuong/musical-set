@@ -45,6 +45,15 @@ def test_adjacency_list(input_set, expected):
 
 class TestPitchClassSet(object):
     
+    
+    @pytest.mark.parametrize('input_set, expected_vector, expected_sum', [
+        ([0, 4, 7], {3: 1, 4: 1, 5: 1}, 12)
+    ])
+    def test_interval_vector(self, input_set, expected_vector, expected_sum):
+        actual = PitchClassSet(input_set)
+        assert expected_vector == actual.interval_vector() 
+        assert expected_sum == actual.interval_sum()
+    
     @pytest.mark.parametrize('input_set, steps, expected', [
         ([0, 1, 2], 1, [1, 2, 3]),
         ([10, 11, 0], 1, [11, 0, 1]),
@@ -89,6 +98,7 @@ class TestPitchClassSet(object):
         ([8, 2, 5, 1], [0, 1, 4, 7]),
         ([5, 9, 0, 4], [0, 1, 5, 8])
     ])
+    #@pytest.mark.skip('working on this')
     def test_prime_form(self, input_set, expected):
         actual = PitchClassSet(input_set).prime_form()
         assert expected == list(actual)

@@ -37,20 +37,26 @@ class PitchClassSet:
         
         # make pitch_classes valid
         self.pitch_classes = to_valid(pitch_classes)
-    
-
 
     # public methods 
-    def steps(self):
-        total = 0
-        for i in range(1, len(self.pitch_classes)):
-            total += interval_distance(0, self.pitch_classes[i])
-        return total 
+    def interval_vector(self): 
+        vector = {}
+        pairs = itertools.combinations(self.pitch_classes, 2)
+        for p in pairs:
+            interval = interval_distance(p[0], p[1])
+            if not interval in vector:
+                vector[interval] = 1
+            else:
+                vector[interval] += 1
+        return vector 
+    
+    
+    def interval_sum(self):
+        iv = self.interval_vector()
+        return sum([k*v for k,v in iv.items()])
 
-    def interval_vector(self):
-        # TODO work on this 
-        pass
 
+    
     def transpose(self, steps):
         return PitchClassSet([(p + steps) % 12 for p in self.pitch_classes])
     
@@ -102,7 +108,7 @@ class PitchClassSet:
         inversion = inversion.transpose(0 - inversion[0])
 
         # compare the two
-        return prime if prime.steps() <= inversion.steps() else inversion  
+        return prime if prime.interval_sum() <= inversion.interval_sum() else inversion  
     
     # magic methods 
     def __list__(self):
