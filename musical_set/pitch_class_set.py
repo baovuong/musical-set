@@ -31,6 +31,9 @@ def adjacency_list(pitch_classes):
     
     return output 
 
+def rotate(pitch_classes, steps):
+    return pitch_classes[steps:] + pitch_classes[:steps]
+
 class PitchClassSet:
 
     def __init__(self, pitch_classes):
@@ -50,12 +53,9 @@ class PitchClassSet:
                 vector[interval] += 1
         return vector 
     
-    
     def interval_sum(self):
         iv = self.interval_vector()
         return sum([k*v for k,v in iv.items()])
-
-
     
     def transpose(self, steps):
         return PitchClassSet([(p + steps) % 12 for p in self.pitch_classes])
@@ -64,7 +64,7 @@ class PitchClassSet:
         return PitchClassSet([(4 - p) % 12 for p in self.pitch_classes])
     
     def rotate(self, steps):
-        return PitchClassSet(self.pitch_classes[steps:] + self.pitch_classes[:steps])
+        return PitchClassSet(rotate(self.pitch_classes, steps))
     
     def normal_order(self):
         
@@ -83,17 +83,32 @@ class PitchClassSet:
         
         interval_distances = [(sorted(i), interval_distance(i[0], i[1])) for i in intervals]
         interval_distances = sorted(interval_distances, key=lambda x: x[1], reverse=True)
-        largest_interval = set(interval_distances[0][0])
+        largest_intervals = set([tuple(i[0]) for i in interval_distances if i[1] == interval_distances[0][1]])
 
-        # rotate until the intervals are on each side
-        normal_order = PitchClassSet(sorted(pitch_classes))
+        possible_normal_orders = []
+        current_possibility = PitchClassSet(sorted(pitch_classes))
+        for i in range(len(pitch_classes)):
+            if (current_possibility[0], current_possibility[-1]) in largest_intervals:
+                possible_normal_orders.append(current_possibility)
+            current_possibility = current_possibility.rotate(1)
 
-        while set([normal_order[0], normal_order[-1]]) != largest_interval:
-            normal_order = normal_order.rotate(1)
+        
+        def normal_order_sorting(x):
+            # first transpose them down to 0
+            t = x.transpose(0 - x[0])
+            return t[-2]
+        
+        sorted(possible_normal_orders, key=normal_order_sorting)
 
-        return normal_order 
+        return possible_normal_orders[0]
 
-    # TODO implement this
+        # normal_order = PitchClassSet(sorted(pitch_classes))
+
+        # while set([normal_order[0], normal_order[-1]]) != largest_interval:
+        #     normal_order = normal_order.rotate(1)
+
+        # return normal_order 
+
     def prime_form(self):
         # normal order
         prime = self.normal_order()
@@ -108,8 +123,12 @@ class PitchClassSet:
         inversion = inversion.transpose(0 - inversion[0])
 
         # compare the two
-        return prime if prime.interval_sum() <= inversion.interval_sum() else inversion  
+        return prime if prime.__root_steps() <= inversion.__root_steps() else inversion  
     
+    # private methods 
+    def __root_steps(self):
+        return sum([self.pitch_classes[i] - self.pitch_classes[0] for i in range(1, len(self.pitch_classes))])
+
     # magic methods 
     def __list__(self):
         return list(self.pitch_classes)
