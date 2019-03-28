@@ -81,27 +81,23 @@ class PitchClassSet:
             for k in value.keys():
                 pitches.add(tuple(sorted((key, k))))
         
-        intervals = [(sorted(p), get_interval(p[0], p[1])) for p in pitches]
-        intervals = sorted(intervals, key=lambda x: x[1], reverse=True)
-        largest_intervals = set([tuple(i[0]) for i in intervals if i[1] == intervals[0][1]])
+        intervals = [sorted(p) for p in pitches]
+        intervals = sorted(intervals, key=lambda p: ai[p[0]][p[1]], reverse=True)
+        largest_intervals = set([tuple(i) for i in intervals 
+            if ai[i[0]][i[1]] == ai[intervals[0][0]][intervals[0][1]]])
         largest_intervals = [set(i) for i in largest_intervals]
 
 
         possible_normal_orders = []
         current_possibility = PitchClassSet(sorted(pitch_classes))
         for i in range(len(pitch_classes)):
-            checked = [li for li in largest_intervals if len(set([current_possibility[0], current_possibility[-1]]).intersection(li)) == 2]
+            checked = [li for li in largest_intervals 
+                if len(set([current_possibility[0], current_possibility[-1]]).intersection(li)) == 2]
             if len(checked) > 0:
                 possible_normal_orders.append(current_possibility)
             current_possibility = current_possibility.rotate(1)
-
         
-        def normal_order_sorting(x):
-            # first transpose them down to 0
-            t = x.transpose(0 - x[0])
-            return t[-2]
-        
-        sorted(possible_normal_orders, key=normal_order_sorting)
+        sorted(possible_normal_orders, key=lambda x: x.transpose(0 - x[0])[-2])
         return possible_normal_orders[0]
 
     def prime_form(self):
