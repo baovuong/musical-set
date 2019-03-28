@@ -3,7 +3,7 @@ import itertools
 
 notes = ('C', 'C#', 'D', 'D#', 'E', 'F', 'G', 'G#', 'A', 'A#', 'B')
 
-def interval_distance(p1, p2):
+def get_interval(p1, p2):
     distance = abs(p1 - p2)
 
     if distance > 6:
@@ -26,8 +26,8 @@ def adjacency_list(pitch_classes):
         # get neighbors
         p = sorted_pitch_classes[(i-1) % len(sorted_pitch_classes)]
         n = sorted_pitch_classes[(i+1) % len(sorted_pitch_classes)]
-        output[sorted_pitch_classes[i]][p] = interval_distance(sorted_pitch_classes[i], p)
-        output[sorted_pitch_classes[i]][n] = interval_distance(sorted_pitch_classes[i], n)
+        output[sorted_pitch_classes[i]][p] = get_interval(sorted_pitch_classes[i], p)
+        output[sorted_pitch_classes[i]][n] = get_interval(sorted_pitch_classes[i], n)
     
     return output 
 
@@ -46,7 +46,7 @@ class PitchClassSet:
         vector = {}
         pairs = itertools.combinations(self.pitch_classes, 2)
         for p in pairs:
-            interval = interval_distance(p[0], p[1])
+            interval = get_interval(p[0], p[1])
             if not interval in vector:
                 vector[interval] = 1
             else:
@@ -75,20 +75,23 @@ class PitchClassSet:
         pitch_classes = list(dict.fromkeys(self.pitch_classes))
 
         # find largest interval
-        intervals = set()
+        pitches = set()
         ai = adjacency_list(self.pitch_classes)
         for key, value in ai.items():
             for k in value.keys():
-                intervals.add(tuple(sorted((key, k))))
+                pitches.add(tuple(sorted((key, k))))
         
-        interval_distances = [(sorted(i), interval_distance(i[0], i[1])) for i in intervals]
-        interval_distances = sorted(interval_distances, key=lambda x: x[1], reverse=True)
-        largest_intervals = set([tuple(i[0]) for i in interval_distances if i[1] == interval_distances[0][1]])
+        intervals = [(sorted(p), get_interval(p[0], p[1])) for p in pitches]
+        intervals = sorted(intervals, key=lambda x: x[1], reverse=True)
+        largest_intervals = set([tuple(i[0]) for i in intervals if i[1] == intervals[0][1]])
+        largest_intervals = [set(i) for i in largest_intervals]
+
 
         possible_normal_orders = []
         current_possibility = PitchClassSet(sorted(pitch_classes))
         for i in range(len(pitch_classes)):
-            if (current_possibility[0], current_possibility[-1]) in largest_intervals:
+            checked = [li for li in largest_intervals if len(set([current_possibility[0], current_possibility[-1]]).intersection(li)) == 2]
+            if len(checked) > 0:
                 possible_normal_orders.append(current_possibility)
             current_possibility = current_possibility.rotate(1)
 
@@ -99,15 +102,7 @@ class PitchClassSet:
             return t[-2]
         
         sorted(possible_normal_orders, key=normal_order_sorting)
-
         return possible_normal_orders[0]
-
-        # normal_order = PitchClassSet(sorted(pitch_classes))
-
-        # while set([normal_order[0], normal_order[-1]]) != largest_interval:
-        #     normal_order = normal_order.rotate(1)
-
-        # return normal_order 
 
     def prime_form(self):
         # normal order

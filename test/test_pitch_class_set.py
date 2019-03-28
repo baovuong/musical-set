@@ -1,23 +1,23 @@
 import pytest 
-from musical_set.pitch_class_set import (interval_distance, 
+from musical_set.pitch_class_set import (get_interval, 
                                          to_valid,
                                          adjacency_list,
                                          PitchClassSet)
 
-@pytest.mark.parametrize('expected, interval1, interval2', [
+@pytest.mark.parametrize('expected, p1, p2', [
     (5, 0, 5),
     (5, 5, 0),
     (5, 0, 7)
 ])
-def test_interval_distance_equal(expected, interval1, interval2):
-    actual = interval_distance(interval1, interval2)
+def test_get_interval_equal(expected, p1, p2):
+    actual = get_interval(p1, p2)
     assert expected == actual
 
-@pytest.mark.parametrize('expected, interval1, interval2', [
+@pytest.mark.parametrize('expected, p1, p2', [
     (7, 0, 7)
 ])
-def test_interval_distance_notequal(expected, interval1, interval2):
-    actual = interval_distance(interval1, interval2)
+def test_get_interval_distance_notequal(expected, p1, p2):
+    actual = get_interval(p1, p2)
     assert expected != actual
 
 @pytest.mark.parametrize('input_set, expected', [
